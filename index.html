@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Псевдокод → Python — Интерактивный курс</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f0f1a; color: #e0e0e0; min-height: 100vh; }
+  .header { background: linear-gradient(135deg, #1a1a2e, #16213e); border-bottom: 1px solid #2a2a4a; padding: 20px; text-align: center; }
+  .header h1 { font-size: 1.6em; color: #a78bfa; }
+  .header p { color: #888; margin-top: 4px; font-size: 0.9em; }
+  .container { max-width: 820px; margin: 0 auto; padding: 20px; }
+
+  .progress-bar { background: #1e1e32; border-radius: 10px; height: 12px; overflow: hidden; margin: 16px 0; }
+  .progress-fill { background: linear-gradient(90deg, #7c3aed, #a78bfa); height: 100%; border-radius: 10px; transition: width 0.4s; }
+  .progress-text { display: flex; justify-content: space-between; color: #888; font-size: 0.85em; margin-bottom: 4px; }
+
+  .part-title { font-size: 1.2em; font-weight: 700; color: #a78bfa; margin: 24px 0 12px; padding-bottom: 6px; border-bottom: 1px solid #2a2a4a; }
+  .lesson-card { background: #1a1a2e; border: 1px solid #2a2a4a; border-radius: 10px; padding: 14px 18px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 12px; }
+  .lesson-card:hover { border-color: #7c3aed; background: #1e1e35; }
+  .lesson-card.done { border-color: #2d4a2d; }
+  .lesson-card.done .status { color: #4ade80; }
+  .status { font-size: 1.1em; width: 24px; color: #555; }
+  .lesson-num { color: #666; font-size: 0.8em; min-width: 28px; }
+  .lesson-title { flex: 1; }
+  .lesson-card.done .lesson-title { color: #4ade80; }
+
+  .view { display: none; }
+  .view.active { display: block; }
+
+  .back-btn { background: none; border: 1px solid #2a2a4a; color: #a78bfa; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-bottom: 16px; font-size: 0.9em; }
+  .back-btn:hover { background: #2a2a4a; }
+
+  .lesson-view h2 { color: #a78bfa; margin-bottom: 16px; font-size: 1.3em; }
+
+  .block { background: #1a1a2e; border: 1px solid #2a2a4a; border-radius: 10px; padding: 18px; margin-bottom: 16px; }
+  .block.text { white-space: pre-wrap; line-height: 1.6; color: #ccc; }
+  .block.example { border-left: 3px solid #4ade80; }
+  .block.example::before { content: 'Пример'; color: #4ade80; font-weight: 700; font-size: 0.8em; display: block; margin-bottom: 8px; }
+  .block pre { background: #0a0a14; padding: 14px; border-radius: 6px; overflow-x: auto; font-size: 0.9em; line-height: 1.5; color: #a8d8ea; margin-top: 8px; }
+  .block code { background: #0a0a14; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+  .block .question { font-size: 1.05em; margin-bottom: 12px; color: #f0f0f0; }
+  .opt { display: block; width: 100%; text-align: left; background: #0f0f1a; border: 1px solid #2a2a4a; color: #ccc; padding: 10px 14px; border-radius: 6px; margin-bottom: 6px; cursor: pointer; transition: all 0.2s; }
+  .opt:hover { border-color: #7c3aed; }
+  .opt.correct { border-color: #4ade80; background: #1a3a1a; color: #4ade80; }
+  .opt.wrong { border-color: #f87171; background: #3a1a1a; color: #f87171; }
+  .opt.disabled { cursor: default; opacity: 0.7; }
+  .explanation { margin-top: 12px; padding: 12px; background: #1e1e32; border-radius: 6px; font-size: 0.9em; display: none; }
+  .explanation.show { display: block; }
+  .explanation.correct { border-left: 3px solid #4ade80; }
+  .explanation.wrong { border-left: 3px solid #f87171; }
+
+  .lesson-done-badge { display: inline-block; background: #1a3a1a; color: #4ade80; padding: 4px 12px; border-radius: 12px; font-size: 0.8em; margin-left: 8px; }
+
+  @media (max-width: 600px) { .container { padding: 12px; } .header h1 { font-size: 1.2em; } }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Псевдокод → Python</h1>
+  <p>Интерактивный курс в стиле Brilliant</p>
+</div>
+
+<div class="container" id="app">
+  <div id="menuView" class="view active">
+    <div class="progress-text">
+      <span id="progressLabel">0 / 15 уроков</span>
+      <span id="progressPct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+    <div class="part-title">Часть 1: Псевдокод</div>
+    <div id="part1"></div>
+
+    <div class="part-title">Часть 2: Python</div>
+    <div id="part2"></div>
+  </div>
+
+  <div id="lessonView" class="view">
+    <button class="back-btn" onclick="showMenu()">← Назад к списку</button>
+    <div class="lesson-view">
+      <h2 id="lessonTitle"></h2>
+      <div id="lessonContent"></div>
+      <button class="back-btn" onclick="showMenu()" style="margin-top:8px">← К списку уроков</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const PART1 = [
+  {
+    id: "p1_intro", title: "Что такое алгоритм?",
+    content: [
+      { type: "text", data: "Алгоритм — это последовательность шагов для решения задачи.\n\nПредставь, что ты робот. Каждую команду нужно формулировать чётко и однозначно.\n\nПример из жизни — рецепт бутерброда:\n  1. Взять хлеб\n  2. Намазать масло\n  3. Положить сыр\n  4. Накрыть вторым куском хлеба\n\nЭто и есть алгоритм! В программировании мы используем псевдокод — язык, похожий на человеческий, но с чёткими правилами." },
+      { type: "example", data: "Задача: дойти до двери, если есть стулья на пути.\n\nПсевдокод:\n  ПОКА есть препятствие:\n      обойти препятствие\n  ИДТИ к двери" },
+      { type: "exercise", question: "Что такое алгоритм?", options: ["Случайный набор команд", "Последовательность шагов для решения задачи", "Язык программирования", "Компьютер"], correct: 1, explanation: "Алгоритм — это именно последовательность чётких шагов." }
+    ]
+  },
+  {
+    id: "p1_vars", title: "Переменные и данные",
+    content: [
+      { type: "text", data: "Переменная — это коробка с именем, в которой хранится значение.\n\nВ псевдокоде:\n  число x = 5\n  имя = 'Анна'\n  возраст = 25\n\nТипы данных:\n  Числа (целые, дробные)\n  Строки (текст)\n  Логические (Истина / Ложь)\n  Списки (набор элементов)" },
+      { type: "example", data: "Псевдокод: работа с переменными\n\n  сумма = 100\n  скидка = 20\n  итог = сумма - скидка  # 80\n  ВЫВЕСТИ итог" },
+      { type: "exercise", question: "Какое значение у переменной x после выполнения: x = 10, x = x + 5?", options: ["5", "10", "15", "Ошибка"], correct: 2, explanation: "x = 10, потом x = 10 + 5 = 15" }
+    ]
+  },
+  {
+    id: "p1_conditions", title: "Условные конструкции",
+    content: [
+      { type: "text", data: "Условия позволяют принимать решения.\n\nВ псевдокоде:\n  ЕСЛИ (условие):\n      действие 1\n  ИНАЧЕ:\n      действие 2\n\nОперации сравнения:\n  = равно  |  ≠ не равно  |  > больше  |  < меньше  |  ≥ больше или равно  |  ≤ меньше или равно" },
+      { type: "example", data: "Проверка доступа:\n\n  возраст = 16\n  ЕСЛИ возраст ≥ 18:\n      ВЫВЕСТИ 'Доступ разрешён'\n  ИНАЧЕ:\n      ВЫВЕСТИ 'Доступ запрещён'" },
+      { type: "exercise", question: "Что выведет код? x = 7; ЕСЛИ x > 10: ВЫВЕСТИ 'A' ИНАЧЕ: ВЫВЕСТИ 'B'", options: ["A", "B", "Ничего", "Ошибка"], correct: 1, explanation: "7 > 10 — Ложь, поэтому выполняется блок ИНАЧЕ → 'B'" }
+    ]
+  },
+  {
+    id: "p1_loops", title: "Циклы",
+    content: [
+      { type: "text", data: "Циклы повторяют действия несколько раз.\n\nПОКА (while) — повторять, пока условие истинно:\n  ПОКА (есть шаги):\n      сделать шаг\n\nДЛЯ (for) — повторять для каждого элемента:\n  ДЛЯ каждого числа в списке:\n      ВЫВЕСТИ число" },
+      { type: "example", data: "Твой пример:\n\n  ПОКА (balls exist):\n      move forward" },
+      { type: "example", data: "Подсчёт суммы от 1 до 5:\n\n  сумма = 0\n  i = 1\n  ПОКА (i ≤ 5):\n      сумма = сумма + i\n      i = i + 1\n  ВЫВЕСТИ сумма  # 15" },
+      { type: "exercise", question: "Сколько раз выполнится цикл? i = 1; ПОКА i ≤ 3: ВЫВЕСТИ i; i = i + 1", options: ["2", "3", "4", "Бесконечно"], correct: 1, explanation: "i = 1,2,3 — три итерации. Когда i = 4, условие 4 ≤ 3 — Ложь." }
+    ]
+  },
+  {
+    id: "p1_lists", title: "Списки и перебор",
+    content: [
+      { type: "text", data: "Список (массив) — набор элементов под одним именем.\n\nВ псевдокоде:\n  студенты = ['Анна', 'Борис', 'Вика']\n  оценки = [85, 92, 78]\n\nДоступ к элементам:\n  студенты[0]  # первый элемент: 'Анна'\n  студенты[1]  # второй: 'Борис'\n\nДЛЯ КАЖДОГО студента ИЗ студенты:\n    ВЫВЕСТИ студент" },
+      { type: "exercise", question: "Чему равно числа[2], если числа = [10, 20, 30, 40]?", options: ["10", "20", "30", "40"], correct: 2, explanation: "Индексация с 0: [0]=10, [1]=20, [2]=30" }
+    ]
+  },
+  {
+    id: "p1_functions", title: "Функции",
+    content: [
+      { type: "text", data: "Функция — это именованный блок кода, который можно вызывать многократно.\n\nВ псевдокоде:\n  ФУНКЦИЯ имя(параметры):\n      действия\n      ВЕРНУТЬ результат\n\nЗачем?\n  - Не повторять код\n  - Разбивать задачу на части\n  - Упрощать чтение" },
+      { type: "example", data: "Функция проверки чётности:\n\n  ФУНКЦИЯ is_even(n):\n      ЕСЛИ n % 2 = 0:\n          ВЕРНУТЬ Истина\n      ИНАЧЕ:\n          ВЕРНУТЬ Ложь" },
+      { type: "exercise", question: "Что вернёт функция? ФУНКЦИЯ double(x): ВЕРНУТЬ x * 2. double(5)", options: ["5", "10", "25", "2"], correct: 1, explanation: "double(5) = 5 * 2 = 10" }
+    ]
+  },
+  {
+    id: "p1_algo", title: "Простые алгоритмы",
+    content: [
+      { type: "text", data: "Применим всё вместе!\n\nПоиск максимального элемента:\n  числа = [3, 7, 2, 9, 1]\n  макс = числа[0]\n  ДЛЯ КАЖДОГО n ИЗ числа:\n      ЕСЛИ n > макс:\n          макс = n\n  ВЫВЕСТИ макс  # 9\n\nПодсчёт чётных:\n  count = 0\n  ДЛЯ КАЖДОГО n ИЗ числа:\n      ЕСЛИ n % 2 = 0:\n          count = count + 1\n  ВЫВЕСТИ count" },
+      { type: "example", data: "Алгоритм: есть ли число в списке?\n\n  ФУНКЦИЯ contains(список, цель):\n      ДЛЯ КАЖДОГО x ИЗ список:\n          ЕСЛИ x = цель:\n              ВЕРНУТЬ Истина\n      ВЕРНУТЬ Ложь" },
+      { type: "exercise", question: "Чему равен макс? числа = [5, 12, 8, 3]; макс = числа[0]; ДЛЯ КАЖДОГО n: ЕСЛИ n > макс: макс = n", options: ["5", "8", "12", "3"], correct: 2, explanation: "12 — наибольший элемент массива" }
+    ]
+  }
+];
+
+const PART2 = [
+  {
+    id: "p2_intro", title: "От псевдокода к Python",
+    content: [
+      { type: "text", data: "Теперь переведём псевдокод в настоящий код на Python!\n\nПсевдокод → Python:\n  ВЫВЕСТИ → print()\n  ВВЕСТИ → input()\n  ЕСЛИ → if\n  ИНАЧЕ → else\n  ПОКА → while\n  ДЛЯ КАЖДОГО → for x in ...\n  ФУНКЦИЯ → def\n  ВЕРНУТЬ → return\n  Истина/Ложь → True/False\n\nPython — читаемый и простой язык. Идеально подходит для начала!" },
+      { type: "example", data: "Псевдокод:\n  ВЫВЕСТИ 'Привет, мир!'\n\nPython:\n  print('Привет, мир!')" },
+      { type: "exercise", question: "Как в Python вывести текст?", options: ["output('текст')", "print('текст')", "echo('текст')", "write('текст')"], correct: 1, explanation: "В Python используется функция print()" }
+    ]
+  },
+  {
+    id: "p2_vars", title: "Переменные в Python",
+    content: [
+      { type: "text", data: "В Python переменные объявлять не нужно — просто присваивай!\n\nПсевдокод → Python:\n  имя = 'Анна'     →  name = 'Анна'\n  возраст = 25     →  age = 25\n  активен = Истина →  active = True\n\nТипы данных:\n  int — целые числа\n  float — дробные\n  str — строки\n  bool — True/False\n  list — списки" },
+      { type: "example", data: "# Псевдокод:\n#   цена = 100\n#   скидка = 20%\n#   итог = цена - (цена * скидка / 100)\n\nprice = 100\ndiscount = 20\ntotal = price - (price * discount / 100)\nprint(total)  # 80.0" },
+      { type: "exercise", question: "Какой тип у переменной x = 3.14?", options: ["int", "float", "str", "bool"], correct: 1, explanation: "3.14 — дробное число, тип float" }
+    ]
+  },
+  {
+    id: "p2_conditions", title: "Условия в Python",
+    content: [
+      { type: "text", data: "Псевдокод → Python:\n\n  ЕСЛИ (x > 0):         →  if x > 0:\n      ВЫВЕСТИ 'Пол.'    →      print('Пол.')\n  ИНАЧЕ:                →  else:\n      ВЫВЕСТИ 'Не пол.' →      print('Не пол.')\n  ИНАЧЕ ЕСЛИ (x = 0):   →  elif x == 0:\n      ВЫВЕСТИ 'Ноль'    →      print('Ноль')\n\nВ Python == это сравнение, = это присваивание!" },
+      { type: "example", data: "# Псевдокод:\n#   ЕСЛИ возраст ≥ 18:\n#       ВЫВЕСТИ 'Вход разрешён'\n#   ИНАЧЕ:\n#       ВЫВЕСТИ 'Вход запрещён'\n\nage = 16\nif age >= 18:\n    print('Вход разрешён')\nelse:\n    print('Вход запрещён')" },
+      { type: "exercise", question: "Что выведет код? x = 10; if x > 5: print('A') else: print('B')", options: ["A", "B", "AB", "Ошибка"], correct: 0, explanation: "10 > 5 — True, поэтому выполняется блок if → 'A'" }
+    ]
+  },
+  {
+    id: "p2_loops", title: "Циклы в Python",
+    content: [
+      { type: "text", data: "Циклы в Python:\n\nПОКА → while:\n  i = 1\n  while i <= 5:\n      print(i)\n      i += 1  # i = i + 1\n\nДЛЯ КАЖДОГО → for:\n  for x in [1, 2, 3]:\n      print(x)\n\nrange(5) → 0, 1, 2, 3, 4\nrange(1, 6) → 1, 2, 3, 4, 5" },
+      { type: "example", data: "# Твой пример на Python:\n\nballs = 3\nwhile balls > 0:\n    print(f'Balls left: {balls}')\n    balls -= 1\n    print('move forward')\nprint('No balls left!')" },
+      { type: "example", data: "# Псевдокод:\n#   сумма = 0\n#   ДЛЯ i ОТ 1 ДО 5:\n#       сумма = сумма + i\n\ntotal = 0\nfor i in range(1, 6):\n    total += i\nprint(total)  # 15" },
+      { type: "exercise", question: "Сколько раз выполнится цикл? for i in range(3): print(i)", options: ["2", "3", "4", "5"], correct: 1, explanation: "range(3) даёт 0, 1, 2 — три итерации" }
+    ]
+  },
+  {
+    id: "p2_lists", title: "Списки в Python",
+    content: [
+      { type: "text", data: "Списки (list) — одна из самых мощных структур Python.\n\nСоздание и доступ:\n  students = ['Анна', 'Борис', 'Вика']\n  print(students[0])  # Анна\n  print(students[-1]) # Вика (последний)\n\nМетоды списков:\n  .append(x)  — добавить в конец\n  .remove(x)  — удалить элемент\n  .sort()     — отсортировать\n  len(список) — длина\n\nГенераторы списков:\n  squares = [n**2 for n in range(5)]  # [0, 1, 4, 9, 16]" },
+      { type: "example", data: "# Псевдокод:\n#   студенты = ['Анна', 'Борис', 'Вика']\n#   ДЛЯ КАЖДОГО s ИЗ студенты:\n#       ВЫВЕСТИ s\n\nstudents = ['Анна', 'Борис', 'Вика']\nfor s in students:\n    print(f'Привет, {s}!')" },
+      { type: "exercise", question: "Что выведет код? nums = [1, 2, 3]; nums.append(4); print(len(nums))", options: ["3", "4", "5", "Ошибка"], correct: 1, explanation: "После append(4) список = [1,2,3,4], длина = 4" }
+    ]
+  },
+  {
+    id: "p2_functions", title: "Функции в Python",
+    content: [
+      { type: "text", data: "Псевдокод → Python:\n\n  ФУНКЦИЯ имя(параметры):  →  def name(params):\n      действия               →      actions\n      ВЕРНУТЬ результат      →      return result\n\nПример:\n  def double(x):\n      return x * 2\n\n  print(double(5))  # 10" },
+      { type: "example", data: "# Псевдокод:\n#   ФУНКЦИЯ max_of_two(a, b):\n#       ЕСЛИ a > b:\n#           ВЕРНУТЬ a\n#       ИНАЧЕ:\n#           ВЕРНУТЬ b\n\ndef max_of_two(a, b):\n    if a > b:\n        return a\n    else:\n        return b\n\nprint(max_of_two(10, 7))  # 10" },
+      { type: "exercise", question: "Что вернёт вызов? def add(a, b): return a + b; print(add(3, 7))", options: ["3", "7", "10", "37"], correct: 2, explanation: "add(3, 7) = 3 + 7 = 10" }
+    ]
+  },
+  {
+    id: "p2_algo", title: "Алгоритмы на Python",
+    content: [
+      { type: "text", data: "Переводим алгоритмы с псевдокода на Python.\n\nПоиск максимума:\n\ndef find_max(numbers):\n    max_val = numbers[0]\n    for n in numbers:\n        if n > max_val:\n            max_val = n\n    return max_val\n\nprint(find_max([3, 7, 2, 9, 1]))  # 9\n\nПодсчёт чётных:\n\ndef count_even(numbers):\n    count = 0\n    for n in numbers:\n        if n % 2 == 0:\n            count += 1\n    return count\n\nprint(count_even([1, 2, 3, 4, 5, 6]))  # 3" },
+      { type: "example", data: "Линейный поиск:\n\ndef contains(lst, target):\n    for x in lst:\n        if x == target:\n            return True\n    return False\n\nprint(contains([1, 2, 3, 4, 5], 3))  # True\nprint(contains([1, 2, 3, 4, 5], 9))  # False" },
+      { type: "exercise", question: "Что вернёт find_max([10, 5, 20, 8])?", options: ["5", "10", "20", "8"], correct: 2, explanation: "20 — максимальный элемент списка" }
+    ]
+  },
+  {
+    id: "p2_project", title: "Финальный проект",
+    content: [
+      { type: "text", data: "Финальный проект: игра «Угадай число»\n\nЗадача: компьютер загадывает число от 1 до 100, игрок угадывает.\n\nПсевдокод:\n  загадать случайное число от 1 до 100\n  ПОКА (игрок не угадал):\n      попросить ввести число\n      ЕСЛИ (число > загаданное):\n          сказать 'Меньше'\n      ИНАЧЕ ЕСЛИ (число < загаданное):\n          сказать 'Больше'\n      ИНАЧЕ:\n          сказать 'Угадал!'" },
+      { type: "example", data: "Полная программа на Python:\n\nimport random\n\nsecret = random.randint(1, 100)\nattempts = 0\n\nprint('Я загадал число от 1 до 100. Угадай!')\n\nwhile True:\n    guess = int(input('Твой вариант: '))\n    attempts += 1\n    if guess > secret:\n        print('Меньше!')\n    elif guess < secret:\n        print('Больше!')\n    else:\n        print(f'Угадал за {attempts} попыток!')\n        break" },
+      { type: "exercise", question: "Какая функция Python используется для случайного числа от 1 до 100?", options: ["random.choice(1, 100)", "random.randint(1, 100)", "random.random(100)", "random.rand(1, 100)"], correct: 1, explanation: "random.randint(1, 100) — целое случайное число от 1 до 100" }
+    ]
+  }
+];
+
+const ALL_LESSONS = [...PART1, ...PART2];
+
+function getProgress() {
+  try { return JSON.parse(localStorage.getItem('course_progress') || '[]'); } catch { return []; }
+}
+
+function saveProgress(done) {
+  localStorage.setItem('course_progress', JSON.stringify(done));
+}
+
+function isDone(id) {
+  return getProgress().includes(id);
+}
+
+function markDone(id) {
+  const done = getProgress();
+  if (!done.includes(id)) { done.push(id); saveProgress(done); }
+}
+
+function renderMenu() {
+  const done = getProgress();
+  const total = ALL_LESSONS.length;
+  const completed = done.length;
+  const pct = total ? Math.round(completed / total * 100) : 0;
+
+  document.getElementById('progressLabel').textContent = `${completed} / ${total} уроков`;
+  document.getElementById('progressPct').textContent = `${pct}%`;
+  document.getElementById('progressFill').style.width = pct + '%';
+
+  renderPart('part1', PART1, 1);
+  renderPart('part2', PART2, 2);
+}
+
+function renderPart(containerId, lessons, partNum) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = lessons.map((l, i) =>
+    `<div class="lesson-card ${isDone(l.id) ? 'done' : ''}" onclick="openLesson(${ALL_LESSONS.indexOf(l)})">
+      <span class="status">${isDone(l.id) ? '✓' : '○'}</span>
+      <span class="lesson-num">${partNum}.${i+1}</span>
+      <span class="lesson-title">${l.title}</span>
+    </div>`
+  ).join('');
+}
+
+function showMenu() {
+  document.getElementById('menuView').classList.add('active');
+  document.getElementById('lessonView').classList.remove('active');
+  renderMenu();
+}
+
+function openLesson(index) {
+  const lesson = ALL_LESSONS[index];
+  document.getElementById('menuView').classList.remove('active');
+  document.getElementById('lessonView').classList.add('active');
+
+  document.getElementById('lessonTitle').innerHTML = `${lesson.title} ${isDone(lesson.id) ? '<span class="lesson-done-badge">Пройдено</span>' : ''}`;
+
+  const contentEl = document.getElementById('lessonContent');
+  contentEl.innerHTML = '';
+
+  lesson.content.forEach(block => {
+    const div = document.createElement('div');
+    div.className = `block ${block.type}`;
+
+    if (block.type === 'text') {
+      div.textContent = block.data;
+    } else if (block.type === 'example') {
+      const pre = document.createElement('pre');
+      pre.textContent = block.data;
+      div.appendChild(pre);
+    } else if (block.type === 'exercise') {
+      div.innerHTML = `<div class="question">${block.question}</div>`;
+      const optionsDiv = document.createElement('div');
+      block.options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'opt';
+        btn.textContent = opt;
+        btn.onclick = function() { checkAnswer(this, i, block.correct, block.explanation); };
+        optionsDiv.appendChild(btn);
+      });
+      div.appendChild(optionsDiv);
+      const expl = document.createElement('div');
+      expl.className = 'explanation';
+      expl.textContent = block.explanation;
+      div.appendChild(expl);
+    }
+
+    contentEl.appendChild(div);
+  });
+
+  // auto-mark as done when opening
+  if (!isDone(lesson.id)) {
+    markDone(lesson.id);
+    // update badge
+    document.getElementById('lessonTitle').innerHTML = `${lesson.title} ${'<span class="lesson-done-badge">Пройдено</span>'}`;
+  }
+}
+
+function checkAnswer(btn, selected, correct, explanation) {
+  const parent = btn.parentElement.parentElement;
+  const allOpts = parent.querySelectorAll('.opt');
+  const explDiv = parent.querySelector('.explanation');
+
+  // disable all
+  allOpts.forEach(b => { b.disabled = true; b.classList.add('disabled'); });
+
+  if (selected === correct) {
+    btn.classList.add('correct');
+    explDiv.className = 'explanation show correct';
+  } else {
+    btn.classList.add('wrong');
+    allOpts[correct].classList.add('correct');
+    explDiv.className = 'explanation show wrong';
+  }
+}
+
+renderMenu();
+</script>
+</body>
+</html>
