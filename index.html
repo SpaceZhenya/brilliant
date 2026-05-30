@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Псевдокод → Python — Интерактивный курс</title>
+<script src="https://skulpt.org/js/skulpt.min.js"></script>
+<script src="https://skulpt.org/js/skulpt-stdlib.js"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f0f1a; color: #e0e0e0; min-height: 100vh; }
@@ -80,6 +82,23 @@
   .order-result.show { display: block; }
   .order-result.ok { border-left: 4px solid #4ade80; }
   .order-result.fail { border-left: 4px solid #f87171; }
+
+  /* Code editor */
+  .block.code { border-left: 4px solid #a78bfa; }
+  .block.code::before { content: 'КОДИНГ'; color: #a78bfa; font-weight: 700; font-size: 0.75em; letter-spacing: 1px; display: block; margin-bottom: 10px; }
+  .code-task { color: #f0f0f0; font-size: 1em; margin-bottom: 12px; line-height: 1.5; }
+  .code-hint { color: #888; font-size: 0.9em; margin-bottom: 12px; font-style: italic; }
+  .code-editor { width: 100%; min-height: 120px; background: #0a0a14; border: 1px solid #2a2a4a; color: #a8d8ea; font-family: 'Courier New', monospace; font-size: 0.95em; padding: 14px; border-radius: 8px; resize: vertical; line-height: 1.5; tab-size: 4; }
+  .code-editor:focus { outline: none; border-color: #7c3aed; }
+  .code-actions { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+  .btn-run { background: #2d6a2d; color: #fff; border: none; padding: 10px 28px; border-radius: 20px; cursor: pointer; font-size: 0.95em; }
+  .btn-run:hover { background: #3a8a3a; }
+  .btn-run:disabled { background: #3a3a5a; cursor: not-allowed; }
+  .btn-reset-code { background: none; border: 1px solid #2a2a4a; color: #888; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 0.95em; }
+  .btn-reset-code:hover { border-color: #7c3aed; color: #a78bfa; }
+  .code-output { margin-top: 10px; background: #0a0a14; border: 1px solid #2a2a4a; border-radius: 8px; padding: 14px; min-height: 40px; font-family: 'Courier New', monospace; font-size: 0.9em; white-space: pre-wrap; color: #a8d8ea; display: none; }
+  .code-output.show { display: block; }
+  .code-output.error { border-color: #f87171; color: #f87171; }
 
   @media (max-width: 600px) { .container { padding: 12px; } .header h1 { font-size: 1.2em; } }
 </style>
@@ -245,6 +264,7 @@ const PART2 = [
       { type: "text", data: "Python создавался с принципом: «читаемость важна».\n\nВ отличии от псевдокода, в Python строгие правила:\n\n• Двоеточие после if, while, for, def\n• Отступы (обычно 4 пробела) вместо слов 'КОНЕЦ ЕСЛИ'\n• Скобки для вызова функций: print(...)\n• Кавычки для строк: 'текст' или \"текст\"\n\nНе пугайся! Большинство конструкций выглядят почти так же, как в псевдокоде." },
       { type: "example", data: "Псевдокод:\n  ВЫВЕСТИ 'Привет, мир!'\n\nPython:\n  print('Привет, мир!')\n\nПросто и понятно!" },
       { type: "order", question: "Сопоставь псевдокод с Python:", items: ["ВЫВЕСТИ → print()", "ЕСЛИ → if", "ПОКА → while", "ФУНКЦИЯ → def"], correct: [0, 1, 2, 3] },
+      { type: "code", task: "Напиши код на Python, который выводит на экран 'Привет, мир!'", hint: "Используй функцию print()", defaultCode: "# Напиши свой код\n", expectedOutput: "Привет, мир!" },
       { type: "exercise", question: "Как в Python вывести текст на экран?", options: ["output('текст')", "print('текст')", "echo('текст')", "write('текст')"], correct: 1, explanation: "В Python используется функция print()." }
     ]
   },
@@ -257,6 +277,7 @@ const PART2 = [
       { type: "text", data: "Основные типы данных в Python:\n\n  int    — целые числа (5, -10, 1000)\n  float  — дробные числа (3.14, -0.5, 1.0)\n  str    — строки ('Привет', \"Python\")\n  bool   — True (Истина) или False (Ложь)\n  list   — списки [1, 2, 3]\n\nЧтобы проверить тип, используй type():\n  x = 5\n  print(type(x))  # <class 'int'>" },
       { type: "example", data: "# Псевдокод:\n#   цена = 100\n#   скидка = 20%\n#   итог = цена - (цена * скидка / 100)\n\nprice = 100\ndiscount = 20\ntotal = price - (price * discount / 100)\nprint(total)  # 80.0" },
       { type: "order", question: "Расположи строки Python в правильном порядке:", items: ["price = 100", "discount = 20", "total = price - (price * discount / 100)", "print(total)"], correct: [0, 1, 2, 3] },
+      { type: "code", task: "Создай переменную name со значением 'Анна' и выведи 'Привет, Анна!' используя print", hint: "print('Привет, ' + name)", defaultCode: "# Создай переменную name и выведи приветствие\n", expectedOutput: "Привет, Анна!" },
       { type: "exercise", question: "Какой тип у переменной x = 3.14?", options: ["int", "float", "str", "bool"], correct: 1, explanation: "3.14 — дробное число, тип float." }
     ]
   },
@@ -279,6 +300,7 @@ const PART2 = [
       { type: "text", data: "Циклы в Python выглядят почти как в псевдокоде, но с двоеточием и отступами.\n\nПОКА → while:\n\ni = 1\nwhile i <= 5:\n    print(i)\n    i += 1\n\nДЛЯ КАЖДОГО → for ... in ...:\n\nfor x in [1, 2, 3]:\n    print(x)\n\nrange() — для последовательностей:\n  range(5)     → 0, 1, 2, 3, 4\n  range(1, 6)  → 1, 2, 3, 4, 5" },
       { type: "example", data: "Твой пример с мячами на Python:\n\nballs = 3\nwhile balls > 0:\n    print(f'Balls left: {balls}')\n    balls -= 1\n    print('move forward')\n\nprint('No balls left!')" },
       { type: "order", question: "Расположи строки цикла while на Python:", items: ["balls = 3", "while balls > 0:", "    print('move forward')", "    balls -= 1", "print('Done!')"], correct: [0, 1, 2, 3, 4] },
+      { type: "code", task: "Напиши цикл while, который выводит числа от 1 до 5", hint: "Используй while i <= 5 и print(i)", defaultCode: "i = 1\nwhile i <= 5:\n    print(i)\n    i += 1", expectedOutput: "1\n2\n3\n4\n5" },
       { type: "exercise", question: "Сколько раз выполнится цикл? for i in range(3): print(i)", options: ["2", "3", "4", "Бесконечно"], correct: 1, explanation: "range(3) → 0, 1, 2 — три итерации." }
     ]
   },
@@ -303,6 +325,7 @@ const PART2 = [
       { type: "text", data: "Функции могут:\n• Принимать несколько параметров\n• Возвращать несколько значений\n• Иметь параметры по умолчанию\n\nПример с несколькими параметрами:\n  def add(a, b):\n      return a + b\n  print(add(3, 7))  # 10\n\nПараметры по умолчанию:\n  def greet(name, greeting='Привет'):\n      return f'{greeting}, {name}!'" },
       { type: "example", data: "def max_of_two(a, b):\n    if a > b:\n        return a\n    else:\n        return b\n\nprint(max_of_two(10, 7))  # 10" },
       { type: "order", question: "Собери функцию на Python:", items: ["def multiply(a, b):", "    result = a * b", "    return result", "print(multiply(3, 4))"], correct: [0, 1, 2, 3] },
+      { type: "code", task: "Напиши функцию double(x), которая возвращает x * 2, и вызови её с числом 5", hint: "def double(x):\n    return x * 2\nprint(double(5))", defaultCode: "# Определи функцию double и вызови её\n", expectedOutput: "10" },
       { type: "exercise", question: "Что вернёт add(3, 7)? def add(a, b): return a + b", options: ["3", "7", "10", "37"], correct: 2, explanation: "add(3, 7) = 3 + 7 = 10." }
     ]
   },
@@ -327,6 +350,7 @@ const PART2 = [
       { type: "text", data: "Пошаговый разбор решения:\n\n1. import random — подключаем модуль для случайных чисел\n2. secret = random.randint(1, 100) — загадываем число\n3. Бесконечный цикл while True:\n   — int(input()) — просим ввести число\n   — Сравниваем с secret\n   — Если угадал — break (выход из цикла)\n\nСовет: добавь счётчик попыток, чтобы игра была интереснее!" },
       { type: "example", data: "Полная программа «Угадай число»:\n\nimport random\n\nsecret = random.randint(1, 100)\nattempts = 0\n\nprint('Я загадал число от 1 до 100. Угадай!')\n\nwhile True:\n    guess = int(input('Твой вариант: '))\n    attempts += 1\n    if guess > secret:\n        print('Меньше!')\n    elif guess < secret:\n        print('Больше!')\n    else:\n        print(f'Угадал за {attempts} попыток!')\n        break" },
       { type: "order", question: "Собери финальный проект в правильном порядке:", items: ["import random", "secret = random.randint(1, 100)", "while True:", "    guess = int(input('Твой вариант: '))", "    if guess == secret:", "        print('Угадал!')", "        break"], correct: [0, 1, 2, 3, 4, 5, 6] },
+      { type: "code", task: "Напиши программу, которая выводит 'Привет!' 3 раза используя цикл for", hint: "Используй for i in range(3):", defaultCode: "for i in range(3):\n    print('Привет!')", expectedOutput: "Привет!\nПривет!\nПривет!" },
       { type: "exercise", question: "Какая функция генерирует случайное целое число от 1 до 100 в Python?", options: ["random.choice(1, 100)", "random.randint(1, 100)", "random.random(100)", "random.rand(1, 100)"], correct: 1, explanation: "random.randint(1, 100) возвращает случайное целое число от 1 до 100 включительно." }
     ]
   }
@@ -444,6 +468,8 @@ function renderBlock(index) {
     disableContinue('Выбери ответ');
   } else if (block.type === 'order') {
     buildOrderBlock(div, block, index, total);
+  } else if (block.type === 'code') {
+    buildCodeBlock(div, block, index, total);
   }
 
   contentEl.appendChild(div);
@@ -658,6 +684,109 @@ function checkOrder(btn) {
     result.className = 'order-result show fail';
     disableContinue('Исправь порядок');
   }
+}
+
+function buildCodeBlock(div, block, index, total) {
+  const defaultCode = block.defaultCode || '# Напиши свой код здесь\n';
+  const uid = 'code_' + Math.random().toString(36).substr(2, 6);
+  div.innerHTML =
+    '<div class="code-task">' + block.task + '</div>' +
+    (block.hint ? '<div class="code-hint">' + block.hint + '</div>' : '') +
+    '<textarea class="code-editor" id="' + uid + '" spellcheck="false">' + defaultCode.replace(/</g, '&lt;') + '</textarea>' +
+    '<div class="code-actions">' +
+      '<button class="btn-run" id="run_' + uid + '" onclick="runCode(\'' + uid + '\')">Запустить</button>' +
+      '<button class="btn-reset-code" onclick="resetCode(\'' + uid + '\', \'' + defaultCode.replace(/</g, '&lt;').replace(/'/g, "\\'") + '\')">Сбросить</button>' +
+    '</div>' +
+    '<div class="code-output" id="out_' + uid + '"></div>';
+  disableContinue('Запусти код');
+}
+
+function resetCode(id, defaultCode) {
+  document.getElementById(id).value = defaultCode;
+  const out = document.getElementById('out_' + id);
+  out.className = 'code-output';
+  out.textContent = '';
+  document.getElementById('run_' + id).disabled = false;
+  document.getElementById('run_' + id).textContent = 'Запустить';
+  const lesson = ALL_LESSONS[currentLessonIndex];
+  const total = lesson.content.length;
+  disableContinue('Запусти код');
+}
+
+function runCode(id) {
+  const code = document.getElementById(id).value;
+  const out = document.getElementById('out_' + id);
+  const btn = document.getElementById('run_' + id);
+  btn.disabled = true;
+  btn.textContent = 'Выполняется...';
+  out.className = 'code-output show';
+  out.textContent = '';
+
+  // Check against expected output if provided
+  const lesson = ALL_LESSONS[currentLessonIndex];
+  const block = lesson.content[currentBlock];
+
+  function handleOutput(output, isError) {
+    out.textContent = output;
+    if (isError) {
+      out.className = 'code-output show error';
+    }
+    btn.disabled = false;
+    btn.textContent = 'Запустить';
+
+    // Auto-check if there's expected output and no error
+    if (!isError && block.expectedOutput !== undefined) {
+      const cleaned = output.toString().trim();
+      const expected = String(block.expectedOutput).trim();
+      if (cleaned === expected) {
+        out.className = 'code-output show';
+        out.textContent = output + '\n\n✅ Правильно! Вывод совпадает.';
+        const total = lesson.content.length;
+        enableContinue(currentBlock, total);
+      } else {
+        out.className = 'code-output show error';
+        out.textContent = output + '\n\n❌ Вывод не совпадает с ожидаемым. Попробуй ещё раз.';
+        disableContinue('Исправь код');
+      }
+      return;
+    }
+    // If there's a check function
+    if (!isError && block.check) {
+      const fn = new Function('code', 'output', block.check);
+      if (fn(code, output.toString())) {
+        out.textContent = output + '\n\n✅ Отлично! Код работает верно.';
+        const total = lesson.content.length;
+        enableContinue(currentBlock, total);
+      } else {
+        out.className = 'code-output show error';
+        out.textContent = output + '\n\n❌ Код работает не так, как ожидалось. Попробуй ещё раз.';
+        disableContinue('Исправь код');
+      }
+      return;
+    }
+    // No validation — just ran successfully
+    if (!isError) {
+      const total = lesson.content.length;
+      enableContinue(currentBlock, total);
+    }
+  }
+
+  // Run with Skulpt
+  Sk.configure({
+    output: function(text) { out.textContent += text; },
+    read: function(x) { return Sk.misceval.pythonToJS(new XMLHttpRequest()); },
+    __future__: Sk.python3
+  });
+
+  Sk.misceval.asyncToPromise(function() {
+    return Sk.importMainWithBody('<stdin>', false, code, true);
+  }).then(function() {
+    handleOutput(out.textContent, false);
+  }, function(err) {
+    const msg = err.toString();
+    out.textContent = msg;
+    handleOutput(msg, true);
+  });
 }
 
 function finishLesson() {
