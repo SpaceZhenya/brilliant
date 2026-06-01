@@ -875,7 +875,7 @@ function runCode(id) {
       enableContinue(currentBlock, lesson.content.length);
     }
   }
-  Sk.configure({ output: function(t) { out.textContent += t; }, read: function() {}, __future__: Sk.python3 });
+  Sk.configure({ output: function(t) { out.textContent += t; }, read: function() { return null; }, inputfun: function(prompt) { return window.prompt(prompt); }, __future__: Sk.python3 });
   Sk.misceval.asyncToPromise(() => Sk.importMainWithBody('<stdin>', false, code, true))
     .then(() => finish(out.textContent, false),
           e => finish(e.toString(), true));
@@ -934,7 +934,18 @@ function runSandbox() {
   const btn = document.querySelector('#sandboxView .btn-run');
   out.className = 'code-output show'; out.textContent = '';
   btn.disabled = true; btn.textContent = '⏳ Выполняется...';
-  Sk.configure({ output: t => out.textContent += t, read: () => {}, __future__: Sk.python3 });
+  if (typeof Sk === 'undefined') {
+    out.textContent = 'Ошибка: Skulpt не загружен. Проверь интернет-соединение.';
+    out.className = 'code-output show error';
+    btn.disabled = false; btn.textContent = '▶ Запустить';
+    return;
+  }
+  Sk.configure({
+    output: t => out.textContent += t,
+    read: function() { return null; },
+    inputfun: function(prompt) { return window.prompt(prompt); },
+    __future__: Sk.python3
+  });
   Sk.misceval.asyncToPromise(() => Sk.importMainWithBody('<stdin>', false, code, true))
     .then(() => { btn.disabled = false; btn.textContent = '▶ Запустить'; },
           e => { out.textContent = e.toString(); out.className = 'code-output show error'; btn.disabled = false; btn.textContent = '▶ Запустить'; });
