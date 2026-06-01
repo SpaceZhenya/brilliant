@@ -249,20 +249,21 @@
     </div>
     <div class="content-wrap">
       <div class="block code">
-        <div class="code-task">Пиши любой Python-код и запускай!</div>
-        <textarea class="code-editor" id="sandboxEditor" spellcheck="false" style="min-height:200px"># Добро пожаловать в Sandbox!
-# Пиши любой Python-код и нажимай Запустить
+        <div class="code-task">Пиши и редактируй Python-код</div>
+        <textarea class="code-editor" id="sandboxEditor" spellcheck="false" style="min-height:320px"># Текстовый редактор Python
+# Пиши код, исправляй, экспериментируй
 
-print('Привет, Sandbox!')
+def greet(name):
+    return f"Привет, {name}!"
 
-# Попробуй циклы, функции, списки:
-for i in range(5):
-    print(f'Шаг {i+1}')</textarea>
+print(greet("Мир"))
+
+numbers = [1, 2, 3, 4, 5]
+for n in numbers:
+    print(n * 2)</textarea>
         <div class="code-actions">
-          <button class="btn-run" onclick="runSandbox()">▶ Запустить</button>
-          <button class="btn-reset-code" onclick="document.getElementById('sandboxEditor').value='# Добро пожаловать в Sandbox!\n# Пиши любой Python-код и нажимай Запустить\n\nprint(\'Привет, Sandbox!\')\n\nfor i in range(5):\n    print(f\'Шаг {i+1}\')'">Сбросить</button>
+          <button class="btn-reset-code" onclick="document.getElementById('sandboxEditor').value='# Текстовый редактор Python\n# Пиши код, исправляй, экспериментируй\n\ndef greet(name):\n    return f\"Привет, {name}!\"\n\nprint(greet(\"Мир\"))\n\nnumbers = [1, 2, 3, 4, 5]\nfor n in numbers:\n    print(n * 2)'">Сбросить</button>
         </div>
-        <div class="code-output show" id="sandboxOutput" style="display:block;min-height:60px">Нажми «Запустить», чтобы выполнить код</div>
       </div>
     </div>
   </div>
@@ -926,29 +927,6 @@ function openSandbox() {
   currentLessonIndex = -1;
   ['menuView','startView','lessonView','endView','sandboxView','sortView'].forEach(id => document.getElementById(id).classList.remove('active'));
   document.getElementById('sandboxView').classList.add('active');
-  document.getElementById('sandboxOutput').className = 'code-output show';
-}
-function runSandbox() {
-  const code = document.getElementById('sandboxEditor').value;
-  const out = document.getElementById('sandboxOutput');
-  const btn = document.querySelector('#sandboxView .btn-run');
-  out.className = 'code-output show'; out.textContent = '';
-  btn.disabled = true; btn.textContent = '⏳ Выполняется...';
-  if (typeof Sk === 'undefined') {
-    out.textContent = 'Ошибка: Skulpt не загружен. Проверь интернет-соединение.';
-    out.className = 'code-output show error';
-    btn.disabled = false; btn.textContent = '▶ Запустить';
-    return;
-  }
-  Sk.configure({
-    output: t => out.textContent += t,
-    read: function() {},
-    inputfun: function(prompt) { return window.prompt(prompt); },
-    __future__: Sk.python3
-  });
-  Sk.misceval.asyncToPromise(() => Sk.importMainWithBody('<stdin>', false, code, true))
-    .then(() => { btn.disabled = false; btn.textContent = '▶ Запустить'; },
-          e => { out.textContent = e.toString(); out.className = 'code-output show error'; btn.disabled = false; btn.textContent = '▶ Запустить'; });
 }
 
 // --- Sorting Visualizer ---
