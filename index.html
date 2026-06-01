@@ -187,12 +187,7 @@
     <div class="part-title">Часть 2: Python</div>
     <div id="part2"></div>
     <div style="margin-top:24px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
-      <div class="lesson-card" onclick="openSandbox()" style="flex:1;min-width:180px;border-color:#2d4a2d;justify-content:center">
-        <span style="font-size:1.3em">🐍</span>
-        <span class="lesson-title" style="text-align:center">Python Sandbox</span>
-        <span class="lesson-arrow">→</span>
-      </div>
-      <div class="lesson-card" onclick="openSortView()" style="flex:1;min-width:180px;border-color:#4a3a1a;justify-content:center">
+<div class="lesson-card" onclick="openSortView()" style="flex:1;min-width:180px;border-color:#4a3a1a;justify-content:center">
         <span style="font-size:1.3em">📊</span>
         <span class="lesson-title" style="text-align:center">Визуализация</span>
         <span class="lesson-arrow">→</span>
@@ -240,33 +235,7 @@
     </div>
   </div>
 
-  <!-- SANDBOX -->
-  <div id="sandboxView" class="view">
-    <div class="lesson-topbar">
-      <button class="btn-exit" onclick="showMenu()">← Назад</button>
-      <span class="lesson-title-bar">Python Sandbox</span>
-      <span class="lesson-step">🐍</span>
-    </div>
-    <div class="content-wrap">
-      <div class="block code">
-        <div class="code-task">Пиши и редактируй Python-код</div>
-        <textarea class="code-editor" id="sandboxEditor" spellcheck="false" style="min-height:320px"># Текстовый редактор Python
-# Пиши код, исправляй, экспериментируй
 
-def greet(name):
-    return f"Привет, {name}!"
-
-print(greet("Мир"))
-
-numbers = [1, 2, 3, 4, 5]
-for n in numbers:
-    print(n * 2)</textarea>
-        <div class="code-actions">
-          <button class="btn-reset-code" onclick="document.getElementById('sandboxEditor').value='# Текстовый редактор Python\n# Пиши код, исправляй, экспериментируй\n\ndef greet(name):\n    return f\"Привет, {name}!\"\n\nprint(greet(\"Мир\"))\n\nnumbers = [1, 2, 3, 4, 5]\nfor n in numbers:\n    print(n * 2)'">Сбросить</button>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- SORTING VISUALIZER -->
   <div id="sortView" class="view">
@@ -922,12 +891,7 @@ function launchConfetti() {
   animate();
 }
 
-// --- Sandbox ---
-function openSandbox() {
-  currentLessonIndex = -1;
-  ['menuView','startView','lessonView','endView','sandboxView','sortView'].forEach(id => document.getElementById(id).classList.remove('active'));
-  document.getElementById('sandboxView').classList.add('active');
-}
+
 
 // --- Sorting Visualizer ---
 let sortArray = [];
@@ -1003,7 +967,7 @@ async function sortBars(type) {
 
 function openSortView() {
   currentLessonIndex = -1;
-  ['menuView','startView','lessonView','endView','sandboxView','sortView'].forEach(id => document.getElementById(id).classList.remove('active'));
+  ['menuView','startView','lessonView','endView','sortView'].forEach(id => document.getElementById(id).classList.remove('active'));
   document.getElementById('sortView').classList.add('active');
   generateBars();
 }
@@ -1019,7 +983,7 @@ finishLesson = function() {
 const _origShowMenu = showMenu;
 showMenu = function() {
   document.getElementById('exitModal').style.display = 'none';
-  ['menuView','startView','lessonView','endView','sandboxView','sortView'].forEach(id => document.getElementById(id).classList.remove('active'));
+  ['menuView','startView','lessonView','endView','sortView'].forEach(id => document.getElementById(id).classList.remove('active'));
   document.getElementById('menuView').classList.add('active');
   renderMenu();
 };
