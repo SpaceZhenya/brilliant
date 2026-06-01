@@ -875,7 +875,7 @@ function runCode(id) {
       enableContinue(currentBlock, lesson.content.length);
     }
   }
-  Sk.configure({ output: function(t) { out.textContent += t; }, read: function() { return null; }, inputfun: function(prompt) { return window.prompt(prompt); }, __future__: Sk.python3 });
+  Sk.configure({ output: function(t) { out.textContent += t; }, read: function() {}, inputfun: function(prompt) { return window.prompt(prompt); }, __future__: Sk.python3 });
   Sk.misceval.asyncToPromise(() => Sk.importMainWithBody('<stdin>', false, code, true))
     .then(() => finish(out.textContent, false),
           e => finish(e.toString(), true));
@@ -942,7 +942,7 @@ function runSandbox() {
   }
   Sk.configure({
     output: t => out.textContent += t,
-    read: function() { return null; },
+    read: function() {},
     inputfun: function(prompt) { return window.prompt(prompt); },
     __future__: Sk.python3
   });
