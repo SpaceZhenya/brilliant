@@ -120,6 +120,8 @@
   .order-result.show { display: block; }
   .order-result.ok { border-left: 3px solid #4ade80; color: #4ade80; }
   .order-result.fail { border-left: 3px solid #f87171; color: #f87171; }
+  .btn-hint { background:transparent; border:1px solid #4a4a6a; color:#64748b; padding:8px 18px; border-radius:100px; cursor:pointer; font-size:0.82em; transition:all 0.2s; }
+  .btn-hint:hover { border-color:#a78bfa; color:#a78bfa; }
 
   /* Continue button */
   .continue-wrap { text-align: center; margin: 28px 0 12px; animation: riseUp 0.3s; }
@@ -622,6 +624,13 @@ function renderBlock(index) {
       od.appendChild(btn);
     });
     div.appendChild(od);
+    const hintWrap = document.createElement('div');
+    hintWrap.style.cssText = 'margin-top:10px;text-align:right';
+    const hintBtn = document.createElement('button');
+    hintBtn.className = 'btn-hint'; hintBtn.textContent = 'Не знаю ответа';
+    hintBtn.onclick = function() { showAnswer(this, block.correct, block.explanation, index, total); };
+    hintWrap.appendChild(hintBtn);
+    div.appendChild(hintWrap);
     const expl = document.createElement('div');
     expl.className = 'explanation'; expl.textContent = block.explanation;
     div.appendChild(expl);
@@ -646,6 +655,35 @@ function disableContinue(text) {
   btn.textContent = text || 'Выбери ответ'; btn.disabled = true;
 }
 function nextBlock() { currentBlock++; renderBlock(currentBlock); }
+function showAnswer(btn, correctIdx, explanation, index, total) {
+  const parent = btn.parentElement.parentElement;
+  const allOpts = parent.querySelectorAll('.opt');
+  allOpts.forEach(b => { b.disabled = true; b.classList.add('disabled'); });
+  allOpts[correctIdx].classList.add('correct');
+  const explDiv = parent.querySelector('.explanation');
+  explDiv.textContent = 'Правильный ответ: ' + allOpts[correctIdx].textContent + '. ' + explanation;
+  explDiv.className = 'explanation show correct';
+  btn.textContent = 'Ответ показан';
+  btn.disabled = true;
+  enableContinue(index, total);
+}
+function showOrderAnswer(btn, zoneId, correctOrder, items) {
+  const zone = document.getElementById(zoneId);
+  if (!zone) return;
+  // Show correct order: place items in correct sequence
+  const ordered = correctOrder.map(idx => items[idx]);
+  zone.innerHTML = ordered.map((text, i) =>
+    '<div class="order-item correct" draggable="false">' +
+      '<span class="grip" style="opacity:0.2">⠿</span><span class="idx">' + (i+1) + '.</span><span>' + text + '</span></div>'
+  ).join('');
+  const result = document.getElementById('or_' + zoneId);
+  result.textContent = 'Правильный порядок показан. Запомни его!';
+  result.className = 'order-result show ok';
+  btn.textContent = 'Ответ показан';
+  btn.disabled = true;
+  const lesson = ALL_LESSONS[currentLessonIndex];
+  enableContinue(currentBlock, lesson.content.length);
+}
 
 function checkAnswer(btn, selected, correct, explanation, index, total) {
   const parent = btn.parentElement.parentElement;
@@ -687,6 +725,12 @@ function buildOrderBlock(div, block, index, total) {
   const btn = div.querySelector('.btn-check');
   btn.dataset.zone = uid;
   btn.dataset.items = JSON.stringify(block.correct);
+  // Hint button for order
+  const hintBtn = document.createElement('button');
+  hintBtn.className = 'btn-hint'; hintBtn.textContent = 'Не знаю ответа';
+  hintBtn.style.cssText = 'margin-left:10px';
+  hintBtn.onclick = function() { showOrderAnswer(this, uid, block.correct, block.items); };
+  btn.parentNode.insertBefore(hintBtn, btn.nextSibling);
 }
 function renderOrderZone(zone, items) {
   zone.innerHTML = items.map((item, i) =>
