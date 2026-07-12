@@ -52,6 +52,9 @@ def show_lesson(lesson):
 
                 try:
                     choice = input(f'\n{BOLD}Твой ответ (1-{len(block["options"])}): {RESET}')
+                    if choice.lower() == 'q':
+                        print(f'{YELLOW}Правильный ответ: {block["options"][block["correct"]]}{RESET}')
+                        break
                     idx = int(choice) - 1
                     if idx == block['correct']:
                         print(f'\n{GREEN}[+] Верно! {block["explanation"]}{RESET}')
@@ -65,6 +68,31 @@ def show_lesson(lesson):
                     input(f'{YELLOW}Нажми Enter...{RESET}')
                     print()
 
+            input(f'\n{YELLOW}Нажми Enter для продолжения...{RESET}')
+            print()
+
+        elif block['type'] == 'order':
+            print(f'{MAGENTA}[Упорядочивание]{RESET}')
+            print(f'{CYAN}{block["question"]}{RESET}')
+            items = block['items']
+            correct = block['correct']
+            print(f'\n{YELLOW}Элементы:{RESET}')
+            for i, item in enumerate(items, 1):
+                print(f'  {i}. {item}')
+            print(f'\n{GREEN}Правильный порядок:{RESET}')
+            ordered = [items[i] for i in correct]
+            for i, item in enumerate(ordered, 1):
+                print(f'  {i}. {item}')
+            input(f'\n{YELLOW}Нажми Enter для продолжения...{RESET}')
+            print()
+
+        elif block['type'] == 'code':
+            print(f'{BLUE}[Кодинг]{RESET}')
+            print(f'{CYAN}{block["task"]}{RESET}')
+            if 'hint' in block:
+                print(f'\n{YELLOW}Подсказка: {block["hint"]}{RESET}')
+            print(f'\n{GREEN}Начальный код:{RESET}')
+            print(f'{BOLD}{block.get("defaultCode", "")}{RESET}')
             input(f'\n{YELLOW}Нажми Enter для продолжения...{RESET}')
             print()
 
